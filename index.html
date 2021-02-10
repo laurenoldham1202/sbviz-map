@@ -11,23 +11,18 @@
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.css' rel='stylesheet' />
     <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.9/mapbox-gl-draw.css' type='text/css'/>
     <style>
-        body { margin:0; padding:0; }
-
-        .wrapper {
-            display: flex;
+        body {
+            margin: 0;
+            padding: 0;
         }
 
         #map {
-            width: 700px;
-            height: 700px;
-            border: 1px solid black;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
         }
 
-        #map-2 {
-            width: 700px;
-            height: 700px;
-            border: 1px solid black;
-        }
     </style>
 </head>
 <body>
@@ -36,61 +31,102 @@
 
 </style>
 
-<div class="wrapper">
-    <div id='map'></div>
-    <div id="map-2"></div>s
-</div>
+<div id='map'></div>
 
 <script>
     mapboxgl.accessToken = 'pk.eyJ1IjoibGF1cmVub2xkaGFtMTIwMiIsImEiOiJjaW55dm52N2gxODJrdWtseWZ5czAyZmp5In0.YkEUt6GvIDujjudu187eyA';
+    const bird = 'bknsti';
+    const variable = 'nonbreeding';
 
-    function generateMap(mapContainer) {
-        return new mapboxgl.Map({
-            container: mapContainer,
-            style: 'mapbox://styles/mapbox/streets-v9',
-            center: [-98, 38.88],
-            minZoom: 2,
-            zoom: 3
+    const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v9',
+        center: [-75, 10], // starting position [lng, lat]
+        zoom: 1, // starting zoom
+    });
+
+    map.on('load', () => {
+        loadTiles(map, '9qerm3q5', bird, variable);
+    });
+
+    function loadTiles(map, tileId, bird, variable) {
+        const layerName = `${bird}_${variable}`;
+        map.addSource(layerName, {
+            type: 'vector',
+            url: `mapbox://laurenoldham1202.${tileId}`
+        });
+
+        map.addLayer({
+            id: layerName,
+            type: 'fill',
+            source: layerName,
+            'source-layer': layerName,
+            paint: {
+                'fill-color': ['interpolate', ['linear'], ['get', 'relative_abundance'],
+                    0, 'rgba(255, 255, 255, 0.6)',
+                    0.00001, '#fcfdbf',
+                    0.5, '#fc8761',
+                    1.5, '#b6367a',
+                    3, '#51127c',
+                    5, '#00004c',
+                    120, '#000'
+                ],
+                'fill-opacity': 0.75,
+                'fill-outline-color': 'transparent',
+            },
         });
     }
 
-    function loadTiles(mapObj, tileID) {
-        mapObj.on('load', () => {
-            mapObj.addSource('counties', {
-                "type": "vector",
-                "url": "mapbox://laurenoldham1202." + tileID
-            });
-
-            mapObj.addLayer({
-                "id": "counties",
-                "type": "fill",
-                "source": "counties",
-                "source-layer": "bknsti_breeding",
-                paint: {
-                    'fill-color': ['interpolate', ['linear'], ['get', 'relative_abundance'],
-                        0, 'rgba(255,255,255,0.5)',
-                        0.00001, '#fcfdbf',
-                        0.5, '#fc8761',
-                        1.5, '#b6367a',
-                        3, '#51127c',
-                        5, '#00004c',
-                        120, '#000'
-                    ],
-                    'fill-opacity': 0.75,
-                    'fill-outline-color': 'transparent',
-                },
-            });
-        });
-
-        const draw = new MapboxDraw();
-        mapObj.addControl(draw);
-    }
-
-    const map = generateMap('map');
-    const map2 = generateMap('map-2');
-
-    loadTiles(map, '3vt6tii3');  // not projected
-    loadTiles(map2, '9er4p0k5');  // projected
+    // function generateMap(mapContainer) {
+    //     return new mapboxgl.Map({
+    //         container: mapContainer,
+    //         style: 'mapbox://styles/mapbox/streets-v9',
+    //         center: [-75, 10], // starting position [lng, lat]
+    //         zoom: 1, // starting zoom
+    //     });
+    // }
+    //
+    // function loadTiles(mapObj, tileID) {
+    //     mapObj.on('load', () => {
+    //         mapObj.addSource('counties', {
+    //             "type": "vector",
+    //             "url": "mapbox://laurenoldham1202." + tileID
+    //         });
+    //
+    //         mapObj.addLayer({
+    //             "id": "counties",
+    //             "type": "fill",
+    //             "source": "counties",
+    //             "source-layer": "bknsti_nonbreeding",
+    //             paint: {
+    //                 'fill-color': ['interpolate', ['linear'], ['get', 'relative_abundance'],
+    //                     0, 'rgba(255, 255, 255, 0.6)',
+    //                     0.00001, '#fcfdbf',
+    //                     0.5, '#fc8761',
+    //                     1.5, '#b6367a',
+    //                     3, '#51127c',
+    //                     5, '#00004c',
+    //                     120, '#000'
+    //                 ],
+    //                 'fill-opacity': 0.75,
+    //                 'fill-outline-color': 'transparent',
+    //             },
+    //         });
+    //     });
+    //
+    //     const draw = new MapboxDraw({
+    //         displayControlsDefault: false,
+    //         controls: {
+    //             polygon: true,
+    //             trash: true,
+    //         }
+    //     });
+    //     mapObj.addControl(draw);
+    // }
+    //
+    // const map = generateMap('map');
+    //
+    // loadTiles(map, '9qerm3q5');  // not projected
 
 </script>
 
