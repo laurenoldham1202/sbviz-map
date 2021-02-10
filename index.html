@@ -35,10 +35,12 @@
 
 <script>
     mapboxgl.accessToken = 'pk.eyJ1IjoibGF1cmVub2xkaGFtMTIwMiIsImEiOiJjaW55dm52N2gxODJrdWtseWZ5czAyZmp5In0.YkEUt6GvIDujjudu187eyA';
-    const bird = 'bknsti';
-    const variable = 'nonbreeding';
+    bird = 'bknsti';
+    variable = 'nonbreeding';
+    layerName = `${bird}_${variable}`;
+    drawnPolygon = undefined;
 
-    const map = new mapboxgl.Map({
+    map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v9',
         center: [-75, 10], // starting position [lng, lat]
@@ -46,11 +48,28 @@
     });
 
     map.on('load', () => {
-        loadTiles(map, '9qerm3q5', bird, variable);
+        loadTiles('9qerm3q5');
+        addDrawControl();
+        addSelectedLayer();
+        onDraw();
+
+        map.on('zoom', () => {
+            // TODO Try to make zoom selection more seamless -
+            // Tile layer changes and then selects on zoom, so there is a brief blip where the selected layer isn't visible
+            if (drawnPolygon) {
+                selectTiles();
+            }
+        });
+
+        map.on('click', layerName, (e) => {
+            console.log(e.features[0].properties);
+        });
     });
 
-    function loadTiles(map, tileId, bird, variable) {
-        const layerName = `${bird}_${variable}`;
+
+
+    // TODO Might need to make layerName a dynamic input
+    function loadTiles(tileId) {
         map.addSource(layerName, {
             type: 'vector',
             url: `mapbox://laurenoldham1202.${tileId}`
@@ -77,56 +96,78 @@
         });
     }
 
-    // function generateMap(mapContainer) {
-    //     return new mapboxgl.Map({
-    //         container: mapContainer,
-    //         style: 'mapbox://styles/mapbox/streets-v9',
-    //         center: [-75, 10], // starting position [lng, lat]
-    //         zoom: 1, // starting zoom
-    //     });
-    // }
-    //
-    // function loadTiles(mapObj, tileID) {
-    //     mapObj.on('load', () => {
-    //         mapObj.addSource('counties', {
-    //             "type": "vector",
-    //             "url": "mapbox://laurenoldham1202." + tileID
-    //         });
-    //
-    //         mapObj.addLayer({
-    //             "id": "counties",
-    //             "type": "fill",
-    //             "source": "counties",
-    //             "source-layer": "bknsti_nonbreeding",
-    //             paint: {
-    //                 'fill-color': ['interpolate', ['linear'], ['get', 'relative_abundance'],
-    //                     0, 'rgba(255, 255, 255, 0.6)',
-    //                     0.00001, '#fcfdbf',
-    //                     0.5, '#fc8761',
-    //                     1.5, '#b6367a',
-    //                     3, '#51127c',
-    //                     5, '#00004c',
-    //                     120, '#000'
-    //                 ],
-    //                 'fill-opacity': 0.75,
-    //                 'fill-outline-color': 'transparent',
-    //             },
-    //         });
-    //     });
-    //
-    //     const draw = new MapboxDraw({
-    //         displayControlsDefault: false,
-    //         controls: {
-    //             polygon: true,
-    //             trash: true,
-    //         }
-    //     });
-    //     mapObj.addControl(draw);
-    // }
-    //
-    // const map = generateMap('map');
-    //
-    // loadTiles(map, '9qerm3q5');  // not projected
+    function addSelectedLayer() {
+        map.addLayer({
+            'id': 'selected',
+            'type': 'fill',
+            'source': layerName,
+            'source-layer': layerName,
+            'paint': {
+                'fill-outline-color': '#484896',
+                'fill-color': '#6e599f',
+                'fill-opacity': 0.75
+            },
+            'filter': ['in', 'id', '']  // default filter with no ids selected
+        });  // plot drawn features on top of adundance tile layer ('gl-draw-polygon-fill-inactive.cold')
+    }
+
+    function addDrawControl() {
+        const draw = new MapboxDraw({
+            displayControlsDefault: false,
+            controls: {
+                polygon: true,
+                trash: true,
+            }
+        });
+        map.addControl(draw);
+    }
+
+    function onDraw() {
+        map.on('draw.create', (e) => {
+            drawnPolygon = e.features[0];
+            selectTiles();
+        });
+    }
+
+    function selectTiles() {
+        const features = map.queryRenderedFeatures(bboxToPixel(drawnPolygon), { layers: [layerName] });
+        const props = features.map(feature => feature.properties);
+        const unique = props.filter((elem, index) => props.findIndex(obj => obj.id === elem.id) === index);
+
+        if (unique.length) {
+            const mean = calculateMean(unique.map(val => val.relative_abundance));
+            console.log(mean);
+        } else {
+            // TODO Return error
+            console.log('No values');
+        }
+
+
+        const filter = features.reduce((memo, feature) => {
+            if (! (undefined === turf.intersect(feature, drawnPolygon))) {
+                // only add the property, if the feature intersects with the polygon drawn by the user
+                memo.push(feature.properties.id);
+            }
+            return memo;
+        }, ['in', 'id']);
+
+        map.setFilter('selected', filter);
+    }
+
+    function bboxToPixel(polygon) {
+        // generate bounding box from polygon the user drew
+        const bbox = turf.bbox(polygon);
+        // convert geographic coordinates to pixel coordinates on the map for `queryRenderedFeatures` formatting
+        // https://docs.mapbox.com/mapbox-gl-js/api/map/#map#project
+        const nePixel = map.project([bbox[2], bbox[3]]);
+        const swPixel = map.project([bbox[0], bbox[1]]);
+        // formatted as [{x: 10, y: 10}, {x: 20, y: 20}]
+        return [swPixel, nePixel];
+    }
+
+    function calculateMean(array) {
+      return array.reduce((a, b) => a + b) / array.length;
+    }
 
 </script>
 
