@@ -4,10 +4,21 @@
     <meta charset='utf-8' />
     <title></title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.js'></script>
-    <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
-    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.9/mapbox-gl-draw.js'></script>
 
+    <!-- JS -->
+    <!-- Bootstrap styling -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <!-- Mapbox, mapbox-draw, turf -->
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.js'></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.9/mapbox-gl-draw.js'></script>
+    <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+    <!-- Jquery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.css' rel='stylesheet' />
     <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.9/mapbox-gl-draw.css' type='text/css'/>
     <style>
@@ -23,6 +34,17 @@
             width: 100%;
         }
 
+        .dropdown {
+            margin-right: 0.5rem;
+        }
+
+        .dropdown-menus {
+            position: absolute;
+            display: flex;
+            top: 1rem;
+            left: 1rem;
+        }
+
     </style>
 </head>
 <body>
@@ -33,12 +55,55 @@
 
 <div id='map'></div>
 
+<div class="dropdown-menus">
+    <select id="select-bird" class="dropdown">
+        <option value="bknsti">Black-Necked Stilt</option>
+    </select>
+    <select id="select-time" class="dropdown">
+        <option value="none">Time</option>
+        <option value="breeding">Breeding</option>
+        <option value="nonbreeding">Non-Breeding</option>
+<!--        <option value="postbreeding_migration">Post-Breeding</option>-->
+<!--        <option value="prebreeding_migration">Pre-Breeding</option>-->
+    </select>
+</div>
+
 <script>
     mapboxgl.accessToken = 'pk.eyJ1IjoibGF1cmVub2xkaGFtMTIwMiIsImEiOiJjaW55dm52N2gxODJrdWtseWZ5czAyZmp5In0.YkEUt6GvIDujjudu187eyA';
+
     bird = 'bknsti';
-    variable = 'nonbreeding';
-    layerName = `${bird}_${variable}`;
+    time = 'nonbreeding';
+    // layerName = `${bird}_${time}`;
+
+    tileMap = {
+        'breeding': '2akgstq2',
+        'nonbreeding': '9qerm3q5',
+        // 'postbreeding_migration': '',
+        // 'prebreeding_migration': '',
+    };
+
     drawnPolygon = undefined;
+
+    $('#select-time').on('change', (e) => {
+        const selectedTime = e.target.value;
+
+        Object.keys(tileMap).forEach(time => {
+            // TODO create fn for returning layerName
+            const layerName = `${bird}_${time}`;
+           if (selectedTime === time) {
+               map.setLayoutProperty(layerName, 'visibility', 'visible');
+           } else {
+               console.log('turn off ', time);
+               map.setLayoutProperty(layerName, 'visibility', 'none');
+
+           }
+        });
+
+        // Object.entries(tileMap).forEach(([timeKey, tileId]) => {
+        //     if
+        // });
+
+    });
 
     map = new mapboxgl.Map({
         container: 'map',
@@ -48,10 +113,11 @@
     });
 
     map.on('load', () => {
-        loadTiles('9qerm3q5');
+        loadTiles();
         addDrawControl();
-        addSelectedLayer();
         onDraw();
+
+
 
         map.on('zoom', () => {
             // TODO Try to make zoom selection more seamless -
@@ -61,54 +127,61 @@
             }
         });
 
-        map.on('click', layerName, (e) => {
-            console.log(e.features[0].properties);
-        });
+        // map.on('click', layerName, (e) => {
+        //     console.log(e.features[0].properties);
+        // });
     });
 
 
 
     // TODO Might need to make layerName a dynamic input
-    function loadTiles(tileId) {
-        map.addSource(layerName, {
-            type: 'vector',
-            url: `mapbox://laurenoldham1202.${tileId}`
-        });
+    function loadTiles() {
 
-        map.addLayer({
-            id: layerName,
-            type: 'fill',
-            source: layerName,
-            'source-layer': layerName,
-            paint: {
-                'fill-color': ['interpolate', ['linear'], ['get', 'relative_abundance'],
-                    0, 'rgba(255, 255, 255, 0.6)',
-                    0.00001, '#fcfdbf',
-                    0.5, '#fc8761',
-                    1.5, '#b6367a',
-                    3, '#51127c',
-                    5, '#00004c',
-                    120, '#000'
-                ],
-                'fill-opacity': 0.75,
-                'fill-outline-color': 'transparent',
-            },
-        });
-    }
+        Object.entries(tileMap).forEach(([timeKey, tileId]) => {
+            const layerName = `${bird}_${timeKey}`;
 
-    function addSelectedLayer() {
-        map.addLayer({
-            'id': 'selected',
-            'type': 'fill',
-            'source': layerName,
-            'source-layer': layerName,
-            'paint': {
-                'fill-outline-color': '#484896',
-                'fill-color': '#6e599f',
-                'fill-opacity': 0.75
-            },
-            'filter': ['in', 'id', '']  // default filter with no ids selected
-        });  // plot drawn features on top of adundance tile layer ('gl-draw-polygon-fill-inactive.cold')
+            map.addSource(layerName, {
+                type: 'vector',
+                url: `mapbox://laurenoldham1202.${tileId}`
+            });
+
+            map.addLayer({
+                id: layerName,
+                type: 'fill',
+                source: layerName,
+                'source-layer': layerName,
+                paint: {
+                    'fill-color': ['interpolate', ['linear'], ['get', 'relative_abundance'],
+                        0, 'rgba(255, 255, 255, 1)',
+                        0.00001, '#fcfdbf',
+                        0.5, '#fc8761',
+                        1.5, '#b6367a',
+                        3, '#51127c',
+                        5, '#00004c',
+                        120, '#000'
+                    ],
+                    'fill-opacity': 0.75,
+                    'fill-outline-color': 'transparent',
+                },
+                layout: {
+                    visibility: 'none',
+                },
+            });
+
+            // empty layer for selected features for each layer
+            map.addLayer({
+                'id': `selected-${layerName}`,
+                'type': 'fill',
+                'source': layerName,
+                'source-layer': layerName,
+                'paint': {
+                    'fill-outline-color': '#484896',
+                    'fill-color': '#6e599f',
+                    'fill-opacity': 0.75
+                },
+                'filter': ['in', 'id', '']  // default filter with no ids selected
+            });  // plot drawn features on top of adundance tile layer ('gl-draw-polygon-fill-inactive.cold')
+        });
     }
 
     function addDrawControl() {
@@ -130,6 +203,7 @@
     }
 
     function selectTiles() {
+        // TODO Make dynamic layerName
         const features = map.queryRenderedFeatures(bboxToPixel(drawnPolygon), { layers: [layerName] });
         const props = features.map(feature => feature.properties);
         const unique = props.filter((elem, index) => props.findIndex(obj => obj.id === elem.id) === index);
@@ -154,6 +228,7 @@
         map.setFilter('selected', filter);
     }
 
+    // TODO Fix this to draw actual polygons and not just bbox
     function bboxToPixel(polygon) {
         // generate bounding box from polygon the user drew
         const bbox = turf.bbox(polygon);
