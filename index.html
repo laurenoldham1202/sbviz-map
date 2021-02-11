@@ -75,6 +75,8 @@
     time = 'nonbreeding';
     // layerName = `${bird}_${time}`;
 
+    selectedLayer = undefined;
+
     tileMap = {
         'breeding': '2akgstq2',
         'nonbreeding': '9qerm3q5',
@@ -86,6 +88,12 @@
 
     $('#select-time').on('change', (e) => {
         const selectedTime = e.target.value;
+        selectedLayer = `${bird}_${e.target.value}`;
+
+        if (drawnPolygon) {
+            // console.log('calc');
+            selectTiles();
+        }
 
         Object.keys(tileMap).forEach(time => {
             // TODO create fn for returning layerName
@@ -93,7 +101,7 @@
            if (selectedTime === time) {
                map.setLayoutProperty(layerName, 'visibility', 'visible');
            } else {
-               console.log('turn off ', time);
+               // console.log('turn off ', time);
                map.setLayoutProperty(layerName, 'visibility', 'none');
 
            }
@@ -133,6 +141,9 @@
     });
 
 
+    function getLayerName(time) {
+        return `${bird}_${time}`;
+    }
 
     // TODO Might need to make layerName a dynamic input
     function loadTiles() {
@@ -177,7 +188,7 @@
                 'paint': {
                     'fill-outline-color': '#484896',
                     'fill-color': '#6e599f',
-                    'fill-opacity': 0.75
+                    'fill-opacity': 0.5
                 },
                 'filter': ['in', 'id', '']  // default filter with no ids selected
             });  // plot drawn features on top of adundance tile layer ('gl-draw-polygon-fill-inactive.cold')
@@ -203,29 +214,38 @@
     }
 
     function selectTiles() {
+        console.log(map.getLayer(selectedLayer));
+
+        console.log(selectedLayer);
+
         // TODO Make dynamic layerName
-        const features = map.queryRenderedFeatures(bboxToPixel(drawnPolygon), { layers: [layerName] });
-        const props = features.map(feature => feature.properties);
-        const unique = props.filter((elem, index) => props.findIndex(obj => obj.id === elem.id) === index);
+        setTimeout(() => {
+            const features = map.queryRenderedFeatures(bboxToPixel(drawnPolygon), { layers: [selectedLayer] });
+            console.log(bboxToPixel(drawnPolygon));
+            console.log(features);
+            const props = features.map(feature => feature.properties);
+            const unique = props.filter((elem, index) => props.findIndex(obj => obj.id === elem.id) === index);
 
-        if (unique.length) {
-            const mean = calculateMean(unique.map(val => val.relative_abundance));
-            console.log(mean);
-        } else {
-            // TODO Return error
-            console.log('No values');
-        }
-
-
-        const filter = features.reduce((memo, feature) => {
-            if (! (undefined === turf.intersect(feature, drawnPolygon))) {
-                // only add the property, if the feature intersects with the polygon drawn by the user
-                memo.push(feature.properties.id);
+            if (unique.length) {
+                const mean = calculateMean(unique.map(val => val.relative_abundance));
+                console.log(mean);
+            } else {
+                // TODO Return error
+                // console.log('No values');
             }
-            return memo;
-        }, ['in', 'id']);
 
-        map.setFilter('selected', filter);
+
+            const filter = features.reduce((memo, feature) => {
+                if (! (undefined === turf.intersect(feature, drawnPolygon))) {
+                    // only add the property, if the feature intersects with the polygon drawn by the user
+                    memo.push(feature.properties.id);
+                }
+                return memo;
+            }, ['in', 'id']);
+
+            map.setFilter(`selected-${selectedLayer}`, filter);
+        }, 100);
+
     }
 
     // TODO Fix this to draw actual polygons and not just bbox
