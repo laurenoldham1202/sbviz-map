@@ -60,31 +60,33 @@
         <option value="bknsti">Black-Necked Stilt</option>
     </select>
     <select id="select-time" class="dropdown">
-        <option value="none">Time</option>
-        <option value="breeding">Breeding</option>
-        <option value="nonbreeding">Non-Breeding</option>
-<!--        <option value="postbreeding_migration">Post-Breeding</option>-->
-<!--        <option value="prebreeding_migration">Pre-Breeding</option>-->
+        <option value="none">Variable</option>
+        <option value="ra">Relative Abundance</option>
+        <option value="pop">Percent of Population</option>
     </select>
+    <div class="slider-container">
+        <input type="range" min="1" max="52" value="1" class="slider" id="select-week">
+    </div>
 </div>
 
 <script>
     mapboxgl.accessToken = 'pk.eyJ1IjoibGF1cmVub2xkaGFtMTIwMiIsImEiOiJjaW55dm52N2gxODJrdWtseWZ5czAyZmp5In0.YkEUt6GvIDujjudu187eyA';
 
-    bird = 'bknsti';
-    time = 'nonbreeding';
-    // layerName = `${bird}_${time}`;
+    let bird = 'bknsti';
+    let time = 'nonbreeding';
 
-    selectedLayer = undefined;
+    let selectedLayer = undefined;
+    let drawnPolygon = undefined;
 
-    tileMap = {
-        'breeding': '2akgstq2',
-        'nonbreeding': '9qerm3q5',
-        // 'postbreeding_migration': '',
-        // 'prebreeding_migration': '',
+    const tileMap = {
+        // 'ra': '2akgstq2',
+        'pop': '1ftqs6fi',
     };
 
-    drawnPolygon = undefined;
+    // changet to 'change' event to only load on final resting spot and not every tick
+    $('#select-week').on('input', (e) => {
+        console.log(e.target.value);
+    });
 
     $('#select-time').on('change', (e) => {
         const selectedTime = e.target.value;
@@ -121,6 +123,65 @@
     });
 
     map.on('load', () => {
+
+
+        // map.addSource('geoserver', {
+        //     type: 'vector',
+        //     url: `http://localhost:8080/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=
+        //     countries:ne_110m_admin_0_countries
+        //     &STYLE=&TILEMATRIX=EPSG:4326:{z}&TILEMATRIXSET=EPSG:4326&FORMAT=application/vnd.mapbox-vector-tile&TILECOL={x}&TILEROW={y}`
+        // });
+        // console.log(map.getSource('geoserver'));
+
+
+        map.addSource('geoserver', {
+            type: 'vector',
+            scheme: 'tms',
+            tiles: [
+                "http://localhost:8080/geoserver/gwc/service/tms/1.0.0/countries:opengeo:countries@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf"
+            ],
+            // tiles: [
+            //     `http://localhost:8080/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=
+            // countries:opengeo:countries
+            // &STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/vnd.mapbox-vector-tile&TILECOL={x}&TILEROW={y}`
+            // ],
+            "minZoom": 0,
+            "maxZoom": 14,
+            // url: `http://localhost:8080/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=
+            // countries:ne_110m_admin_0_countries
+            // &STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/vnd.mapbox-vector-tile&TILECOL={x}&TILEROW={y}`
+        });
+        console.log(map.getSource('geoserver'));
+
+        map.addLayer({
+            id: 'geoserver',
+            type: 'fill',
+            source: 'geoserver',
+            'source-layer': 'opengeo:countries',
+            paint: {
+                'fill-color': 'red',
+                'fill-opacity': 0.75,
+            }
+        });
+        console.log(map.getLayer('geoserver'));
+
+        map.on('click', 'geoserver', (e) => {
+            console.log(e.features[0]);
+        });
+
+        // "<source-name>": {
+        //     "type": "vector",
+        //         "tiles": [
+        //         "http://localhost:8080/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS
+        //         &VERSION=1.0.0&LAYER=<workspace>:<layer>&STYLE=&TILEMATRIX=EPSG:900913:{z}
+        // &TILEMATRIXSET=EPSG:900913&FORMAT=application/vnd.mapbox-vector-tile
+        //     &TILECOL={x}&TILEROW={y}"
+        // ],
+        //     "minZoom": 0,
+        //         "maxZoom": 14
+        // }
+        // map.addLayer()
+
         loadTiles();
         addDrawControl();
         onDraw();
@@ -151,6 +212,8 @@
         Object.entries(tileMap).forEach(([timeKey, tileId]) => {
             const layerName = `${bird}_${timeKey}`;
 
+
+
             map.addSource(layerName, {
                 type: 'vector',
                 url: `mapbox://laurenoldham1202.${tileId}`
@@ -162,14 +225,23 @@
                 source: layerName,
                 'source-layer': layerName,
                 paint: {
-                    'fill-color': ['interpolate', ['linear'], ['get', 'relative_abundance'],
+                    // 'fill-color': ['interpolate', ['linear'], ['get', 'relative_abundance'],
+                    //     0, 'rgba(255, 255, 255, 1)',
+                    //     0.00001, '#fcfdbf',
+                    //     0.5, '#fc8761',
+                    //     1.5, '#b6367a',
+                    //     3, '#51127c',
+                    //     5, '#00004c',
+                    //     120, '#000'
+                    // ],
+                    'fill-color': ['interpolate', ['linear'], ['get', 'percent_of_population'],
                         0, 'rgba(255, 255, 255, 1)',
-                        0.00001, '#fcfdbf',
-                        0.5, '#fc8761',
-                        1.5, '#b6367a',
-                        3, '#51127c',
-                        5, '#00004c',
-                        120, '#000'
+                        0.0001, '#fcfdbf',
+                        0.0004, '#fc8761',
+                        0.0008, '#b6367a',
+                        0.0012, '#51127c',
+                        0.0016, '#00004c',
+                        0.002, '#000'
                     ],
                     'fill-opacity': 0.75,
                     'fill-outline-color': 'transparent',
