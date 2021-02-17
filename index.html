@@ -139,7 +139,7 @@
         //     type: 'vector',
         //     scheme: 'tms',  // required for proper display of vector tiles
         //     // `countries:opengeo:countries` are the workspace (countries) and layer name (opengeo:countries) as uploaded in geoserver
-        //     tiles: ['http://localhost:8080/geoserver/gwc/service/tms/1.0.0/countries:opengeo:countries@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf'],
+        //     tiles: ['http://localhost:8080/geoserver/gwc/service/tms/1.0.0/countriesWorkspace:countries@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf'],
         //     // tiles: [
         //     //     `http://localhost:8080/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=
         //     // countries:opengeo:countries
@@ -157,7 +157,7 @@
         //     id: 'geoserver',
         //     type: 'fill',
         //     source: 'geoserver',
-        //     'source-layer': 'opengeo:countries',  // layer name from geoserver
+        //     'source-layer': 'countries',  // layer name from geoserver
         //     paint: {
         //         'fill-color': 'red',
         //         'fill-opacity': 0.5,
@@ -166,32 +166,61 @@
         // console.log(map.getLayer('geoserver'));
 
 
-        // TODO see if www/vectortiles is needed
-        map.addSource('bknsti', {
-            type: 'vector',
-            scheme: 'tms',  // required for proper display of vector tiles
-            // `countries:opengeo:countries` are the workspace (countries) and layer name (opengeo:countries) as uploaded in geoserver
-            tiles: ['http://localhost:8080/geoserver/gwc/service/tms/1.0.0/bknsti:bknsti_pop@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf'],
-            minZoom: 0,
-            maxZoom: 2,
-        });
-        console.log(map.getSource('bknsti'));
-
-        map.addLayer({
-            id: 'bknsti',
-            type: 'fill',
-            source: 'bknsti',
-            'source-layer': 'bknsti_pop',  // layer name from geoserver
-            paint: {
-                'fill-color': 'red',
-                'fill-opacity': 0.5,
-            }
-        });
-        console.log(map.getLayer('bknsti'));
+//         // TODO see if www/vectortiles is needed
+//         map.addSource('bknsti', {
+//             type: 'vector',
+//             // scheme: 'tms',  // required for proper display of vector tiles
+//             // `countries:opengeo:countries` are the workspace (countries) and layer name (opengeo:countries) as uploaded in geoserver
+// //             'tiles': [`
+// // http://localhost:8080/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=bknsti:bknsti_pop_2&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/vnd.mapbox-vector-tile&TILECOL={x}&TILEROW={y}`
+// //             ],
+//
+//             tiles: ['http://localhost:8080/geoserver/gwc/service/tms/1.0.0/bknsti:ameavo_pop@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf'],
+//             // minZoom: 0,
+//             // maxZoom: 2,
+//         });
+//         console.log(map.getSource('bknsti'));
+//
+//         map.addLayer({
+//             id: 'bknsti',
+//             type: 'fill',
+//             source: 'bknsti',
+//             'source-layer': 'ameavo_pop',  // `title` from geoserver
+//             paint: {
+//                 'fill-color': 'teal',
+//                 'fill-opacity': 0.25,
+//             }
+//         });
+//         console.log(map.getLayer('bknsti'));
 
         map.on('click', 'bknsti', (e) => {
             console.log(e.features[0].properties);
         });
+
+
+        // TODO see if www/vectortiles is needed
+        map.addSource('bknsti2', {
+            type: 'vector',
+            scheme: 'tms',  // required for proper display of vector tiles
+            // `countries:opengeo:countries` are the workspace (countries) and layer name (opengeo:countries) as uploaded in geoserver
+            tiles: ['http://localhost:8080/geoserver/gwc/service/tms/1.0.0/bknsti:bknsti_pop@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf'],
+            // minZoom: 0,
+            // maxZoom: 2,
+        });
+        console.log(map.getSource('bknsti'));
+
+        map.addLayer({
+            id: 'bknsti2',
+            type: 'fill',
+            source: 'bknsti2',
+            'source-layer': 'bknsti_pop',  // `title` from geoserver
+            paint: {
+                'fill-color': 'red',
+                'fill-opacity': 0.25,
+            }
+        });
+        console.log(map.getLayer('bknsti'));
+
 
 
         loadTiles();
