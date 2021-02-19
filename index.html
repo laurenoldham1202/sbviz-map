@@ -104,10 +104,14 @@
         ameavo_pop_13: '3xrib0y6',
     };
 
+    // TODO: Find out how weekly data will be accessed (will users be interested in just one week at a time, or how trends occur week over week?)
+    // Should all birds/variables have the same legend/scale, or should it be custom for each one?
+
     function updateTileLayer() {
 
         if (bird !== '' && time !== '') {
             const layer = `${bird}_${time}_${week}`;
+            console.log(layer);
 
             Object.keys(tileMap).forEach(id => {
                 if (id === layer) {
@@ -171,6 +175,67 @@
     });
 
     map.on('load', () => {
+        // https://laurenoldham1202.github.io/countries-vector-tiles/
+
+        // http://localhost:8080/data/bknsti_pop/{z}/{x}/{y}.pbf
+
+        // TODO see if www/vectortiles is needed
+        map.addSource('bknsti2', {
+            type: 'vector',
+            // scheme: 'xyz',  // required for proper display of vector tiles
+            // `countries:opengeo:countries` are the workspace (countries) and layer name (opengeo:countries) as uploaded in geoserver
+            tiles: ['https://laurenoldham1202.github.io/countries-vector-tiles/www/{z}/{x}/{y}.pbf'],
+            // minZoom: 0,
+            maxZoom: 15,
+        });
+        console.log(map.getSource('bknsti2'));
+
+        map.addLayer({
+            id: 'bknsti2',
+            type: 'fill',
+            source: 'bknsti2',
+            'source-layer': 'countries',  // `title` from geoserver
+            paint: {
+                'fill-color': 'red',
+                'fill-opacity': 0.25,
+            }
+        });
+        console.log(map.getLayer('bknsti2'));
+
+        map.on('click', 'bknsti2', (e) => {
+            console.log(e.features[0].properties);
+        });
+
+
+        // // TODO see if www/vectortiles is needed
+        // map.addSource('bknsti2', {
+        //     type: 'vector',
+        //     // scheme: 'tms',  // required for proper display of vector tiles
+        //     // `countries:opengeo:countries` are the workspace (countries) and layer name (opengeo:countries) as uploaded in geoserver
+        //     tiles: ['http://localhost:8080/data/ameavo-join/{z}/{x}/{y}.pbf'],
+        //     // minZoom: 0,
+        //     maxZoom: 15,
+        // });
+        // console.log(map.getSource('bknsti'));
+        //
+        // map.addLayer({
+        //     id: 'bknsti2',
+        //     type: 'fill',
+        //     source: 'bknsti2',
+        //     'source-layer': 'ameavo_pop_week12',  // `title` from geoserver
+        //     paint: {
+        //         'fill-color': 'red',
+        //         'fill-opacity': 0.25,
+        //     }
+        // });
+        // console.log(map.getLayer('bknsti2'));
+        //
+        // map.on('click', 'bknsti2', (e) => {
+        //     console.log(e.features[0].properties);
+        // });
+
+
+
 
         Object.entries(tileMap).forEach(([key, id]) => {
 
