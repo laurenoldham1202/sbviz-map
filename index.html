@@ -184,7 +184,7 @@
             type: 'vector',
             // scheme: 'xyz',  // required for proper display of vector tiles
             // `countries:opengeo:countries` are the workspace (countries) and layer name (opengeo:countries) as uploaded in geoserver
-            tiles: ['https://laurenoldham1202.github.io/countries-vector-tiles/www/{z}/{x}/{y}.pbf'],
+            tiles: ['https://laurenoldham1202.github.io/countries-vector-tiles/countries/{z}/{x}/{y}.pbf'],
             // minZoom: 0,
             maxZoom: 15,
         });
@@ -198,6 +198,33 @@
             paint: {
                 'fill-color': 'red',
                 'fill-opacity': 0.25,
+            }
+        });
+        console.log(map.getLayer('bknsti2'));
+
+        map.on('click', 'bknsti2', (e) => {
+            console.log(e.features[0].properties);
+        });
+
+
+        // TODO see if www/vectortiles is needed
+        map.addSource('bknsti3', {
+            type: 'vector',
+            scheme: 'tms',  // required for proper display of vector tiles
+            // `countries:opengeo:countries` are the workspace (countries) and layer name (opengeo:countries) as uploaded in geoserver
+            tiles: ['https://laurenoldham1202.github.io/countries-vector-tiles/graticules/{z}/{x}/{y}.pbf'],
+            // minZoom: 0,
+            maxZoom: 15,
+        });
+        console.log(map.getSource('bknsti3'));
+
+        map.addLayer({
+            id: 'bknsti3',
+            type: 'line',
+            source: 'bknsti3',
+            'source-layer': 'graticules',  // `title` from geoserver
+            paint: {
+                'line-color': 'blue',
             }
         });
         console.log(map.getLayer('bknsti2'));
