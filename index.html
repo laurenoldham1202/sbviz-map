@@ -67,9 +67,16 @@
         <option value="ra">Relative Abundance</option>
         <option value="pop">Percent of Population</option>
     </select>
-    <div class="slider-container">
-        <input type="range" min="11" max="13" value="11" class="slider" id="select-week">
-    </div>
+    <select id="select-week" class="dropdown">
+        <option value="none">Select Week</option>
+        <option value="11">2018/03/15</option>
+        <option value="12">2018/03/22</option>
+        <option value="13">2018/03/29</option>
+    </select>
+<!--    <div class="slider-container">-->
+<!--        <label for="select-week">Week</label>-->
+<!--        <input type="range" min="11" max="13" value="11" class="slider" id="select-week">-->
+<!--    </div>-->
 </div>
 
 <div id="info" style="position: absolute; left: 1rem; top: 3rem; color: whitesmoke;"></div>
@@ -116,6 +123,7 @@
         }
     }
 
+    // TODO Update calculations on variable changes
     $('#select-time').on('change', (e) => {
         time = e.target.value;
         updateTileLayer();
@@ -127,8 +135,13 @@
         updateTileLayer();
     });
 
+    // // changet to 'change' event to only load on final resting spot and not every tick
+    // $('#select-week').on('input', (e) => {
+    //     week = e.target.value;
+    //     updateTileLayer();
+    // });
     // changet to 'change' event to only load on final resting spot and not every tick
-    $('#select-week').on('input', (e) => {
+    $('#select-week').on('change', (e) => {
         week = e.target.value;
         updateTileLayer();
     });
@@ -229,21 +242,9 @@
                     selectTiles();
                 }
             });
-
-
-            // TODO Try to make zoom selection more seamless -
-            // Tile layer changes and then selects on zoom, so there is a brief blip where the selected layer isn't visible
-            if (drawnPolygon) {
-                // selectTiles();
-            }
         });
-
-        // map.on('click', layerName, (e) => {
-        //     console.log(e.features[0].properties);
-        // });
     });
 
-    // #d1eeea,#a8dbd9,#85c4c9,#68abb8,#4f90a6,#3b738f,#2a5674
     function setFillColor(variable) {
         if (variable === 'pop') {
             return ['interpolate', ['linear'], ['get', 'percent_of_population'],
