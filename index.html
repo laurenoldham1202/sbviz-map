@@ -55,6 +55,7 @@
 
 <div id='map'></div>
 
+<!-- TODO Fix positioning for container holding menus and info box -->
 <div class="dropdown-menus">
     <select id="select-bird" class="dropdown">
         <option value="none">Select Bird</option>
@@ -71,28 +72,15 @@
     </div>
 </div>
 
+<div id="info" style="position: absolute; left: 1rem; top: 3rem; color: whitesmoke;"></div>
+
 <script>
     mapboxgl.accessToken = 'pk.eyJ1IjoibGF1cmVub2xkaGFtMTIwMiIsImEiOiJjaW55dm52N2gxODJrdWtseWZ5czAyZmp5In0.YkEUt6GvIDujjudu187eyA';
-
-    // birds - ameavo, bknsti
-    // vars - relative abundance, percent of population
-    // time - 3 weeks
-
-    // bknsti pop week 11 - laurenoldham1202.5fck411z
-    // bknsti pop week 12 - laurenoldham1202.7j0ypz8w
-    // bknsti pop week 13 - laurenoldham1202.0bgqnmvd
-    // ameavo pop week 11 - laurenoldham1202.cq1dlt02
-    // ameavo pop week 12 - laurenoldham1202.bcl9t1ic
-    // ameavo pop week 13 - laurenoldham1202.3xrib0y6
-
-    // let bird = 'bknsti';
-    // let time = 'nonbreeding';
 
     let week = 11;
     let bird = '';
     let time = '';
 
-    let selectedLayer = undefined;
     let drawnPolygon = undefined;
 
     const tileMap = {
@@ -117,7 +105,6 @@
 
         if (bird !== '' && time !== '') {
             const layer = `${bird}_${time}_${week}`;
-            console.log(layer);
 
             Object.keys(tileMap).forEach(id => {
                 if (id === layer) {
@@ -145,50 +132,48 @@
         week = e.target.value;
         updateTileLayer();
     });
-    //
-    // $('#select-time').on('change', (e) => {
-    //     const selectedTime = e.target.value;
-    //     selectedLayer = `${bird}_${e.target.value}`;
-    //
-    //     if (drawnPolygon) {
-    //         // console.log('calc');
-    //         selectTiles();
-    //     }
-    //
-    //     Object.keys(tileMap).forEach(time => {
-    //         // TODO create fn for returning layerName
-    //         const layerName = `${bird}_${time}`;
-    //        if (selectedTime === time) {
-    //            map.setLayoutProperty(layerName, 'visibility', 'visible');
-    //        } else {
-    //            // console.log('turn off ', time);
-    //            map.setLayoutProperty(layerName, 'visibility', 'none');
-    //
-    //        }
-    //     });
-    //
-    //     // Object.entries(tileMap).forEach(([timeKey, tileId]) => {
-    //     //     if
-    //     // });
-    //
-    // });
 
     map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v9',
+        style: 'mapbox://styles/mapbox/dark-v9',
         center: [-75, 10], // starting position [lng, lat]
         zoom: 1, // starting zoom
     });
 
     map.on('load', () => {
 
+        // map.addSource('bknsti2', {
+        //     type: 'vector',
+        //     // scheme: 'tms',  // required for proper display of vector tiles
+        //     // `countries:opengeo:countries` are the workspace (countries) and layer name (opengeo:countries) as uploaded in geoserver
+        //     tiles: ['http://localhost:8080/data/ameavo_ra_3km/{z}/{x}/{y}.pbf'],
+        //     // minZoom: 0,
+        //     maxZoom: 15,
+        // });
+        // console.log(map.getSource('bknsti'));
+        //
+        // map.addLayer({
+        //     id: 'bknsti2',
+        //     type: 'fill',
+        //     source: 'bknsti2',
+        //     'source-layer': 'ameavo_ra',  // `title` from geoserver
+        //     paint: {
+        //         'fill-color': 'red',
+        //         'fill-opacity': 0.25,
+        //     }
+        // });
+        // console.log(map.getLayer('bknsti2'));
+        //
+        // map.on('click', 'bknsti2', (e) => {
+        //     console.log(e.features[0].properties);
+        // });
+
+
         // TODO Document issues with trying to merge all 52 weeks into same dataset (
         // TODO Deploy versions for github hosting (remote), github hosting (local/offline) and mapbox hosting, document
         // TODO Check in with Tom about google maps API
         // TODO Ask about other data vis packages currently in use - or do I need to figure that out?
-
-
-        //     // TODO create Git tutorials for serving remotely with github pages, serving PBFs from local directory, tileServerGl, mapTiler?
+        // TODO create Git tutorials for serving remotely with github pages, serving PBFs from local directory, tileServerGl, mapTiler?
 
         Object.entries(tileMap).forEach(([key, id]) => {
 
@@ -216,6 +201,18 @@
                     visibility: 'none',
                 },
             });
+
+            map.on('mouseover', key, () => {
+               map.getCanvas().style.cursor = 'pointer';
+            });
+
+            map.on('mouseout', key, () => {
+               map.getCanvas().style.cursor = 'grab';
+            });
+
+            map.on('click', key, (e) => {
+                // console.log(e.features[0].properties);
+            });
         });
 
         addDrawControl();
@@ -238,7 +235,7 @@
     function setFillColor(variable) {
         if (variable === 'pop') {
             return ['interpolate', ['linear'], ['get', 'percent_of_population'],
-                0, 'rgba(255, 255, 255, 0.5)',
+                0, 'rgba(255, 255, 255, 0.25)',
                 0.0001, '#f1eef6',
                 0.0004, '#d0d1e6',
                 0.0008, '#a6bddb',
@@ -248,7 +245,7 @@
             ];
         } else {
             return ['interpolate', ['linear'], ['get', 'relative_abundance'],
-                0, 'rgba(255, 255, 255, 0.5)',
+                0, 'rgba(255, 255, 255, 0.25)',
                 0.00001, '#fcfdbf',
                 0.5, '#fc8761',
                 1.5, '#b6367a',
@@ -334,6 +331,13 @@
             }
         });
         map.addControl(draw);
+
+        // force delete any drawn object to bypass select mode bug
+        $('.mapbox-gl-draw_trash').on('click', () => {
+            draw.deleteAll();
+            $('#info').text('');
+
+        });
     }
 
     function onDraw() {
@@ -344,36 +348,33 @@
     }
 
     function selectTiles() {
-        console.log(map.getLayer(selectedLayer));
+        // TODO Add condition for when no layer is on the map
+        const layer = `${bird}_${time}_${week}`;
 
-        console.log(selectedLayer);
-
-        // TODO Make dynamic layerName
         setTimeout(() => {
-            const features = map.queryRenderedFeatures(bboxToPixel(drawnPolygon), { layers: [selectedLayer] });
-            console.log(bboxToPixel(drawnPolygon));
-            console.log(features);
+            const features = map.queryRenderedFeatures(bboxToPixel(drawnPolygon), { layers: [layer] });
             const props = features.map(feature => feature.properties);
             const unique = props.filter((elem, index) => props.findIndex(obj => obj.id === elem.id) === index);
 
             if (unique.length) {
-                const mean = calculateMean(unique.map(val => val.relative_abundance));
+                const mean = calculateMean(unique.map(val => val[time === 'pop' ? 'percent_of_population' : 'relative_abundance']));
                 console.log(mean);
+                $('#info').text('Mean for selected area: ' + mean.toFixed(6));
             } else {
                 // TODO Return error
-                // console.log('No values');
+                console.log('No values');
             }
 
 
-            const filter = features.reduce((memo, feature) => {
-                if (! (undefined === turf.intersect(feature, drawnPolygon))) {
-                    // only add the property, if the feature intersects with the polygon drawn by the user
-                    memo.push(feature.properties.id);
-                }
-                return memo;
-            }, ['in', 'id']);
-
-            map.setFilter(`selected-${selectedLayer}`, filter);
+            // const filter = features.reduce((memo, feature) => {
+            //     if (! (undefined === turf.intersect(feature, drawnPolygon))) {
+            //         // only add the property, if the feature intersects with the polygon drawn by the user
+            //         memo.push(feature.properties.id);
+            //     }
+            //     return memo;
+            // }, ['in', 'id']);
+            //
+            // map.setFilter(`selected-${selectedLayer}`, filter);
         }, 100);
 
     }
