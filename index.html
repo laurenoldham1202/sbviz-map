@@ -207,11 +207,18 @@
         });
 
 
+
+        // TODO Deploy versions for github hosting (remote), github hosting (local/offline) and mapbox hosting, document
+        // TODO Check in with Tom about google maps API
+        // TODO Ask about other data vis packages currently in use - or do I need to figure that out?
+
+
         // TODO see if www/vectortiles is needed
         map.addSource('bknsti3', {
             type: 'vector',
-            scheme: 'tms',  // required for proper display of vector tiles
+            // scheme: 'tms',  // required for proper display of vector tiles
             // `countries:opengeo:countries` are the workspace (countries) and layer name (opengeo:countries) as uploaded in geoserver
+            // TODO create Git tutorials for serving remotely with github pages, serving PBFs from local directory, tileServerGl, mapTiler?
             tiles: ['https://laurenoldham1202.github.io/countries-vector-tiles/graticules/{z}/{x}/{y}.pbf'],
             // minZoom: 0,
             maxZoom: 15,
