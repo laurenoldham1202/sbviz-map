@@ -179,24 +179,26 @@
 
         // http://localhost:8080/data/bknsti_pop/{z}/{x}/{y}.pbf
 
+        const loc = location.origin + location.pathname + 'tiles/{z}/{x}/{y}.pbf';
+
         // TODO see if www/vectortiles is needed
         map.addSource('bknsti2', {
             type: 'vector',
             // scheme: 'xyz',  // required for proper display of vector tiles
             // `countries:opengeo:countries` are the workspace (countries) and layer name (opengeo:countries) as uploaded in geoserver
-            tiles: [location.origin  + '/sbviz-map/tiles/{z}/{x}/{y}.pbf'],
+            tiles: [loc],
             // minZoom: 0,
             maxZoom: 15,
         });
 
-        console.log(location.origin  + '/sbviz-map/tiles/{z}/{x}/{y}.pbf');
+        console.log(loc);
         console.log(map.getSource('bknsti2'));
 
         map.addLayer({
             id: 'bknsti2',
             type: 'fill',
             source: 'bknsti2',
-            'source-layer': 'mvt_id',  // `title` from geoserver
+            'source-layer': 'ameavo_ra',  // `title` from geoserver
             paint: {
                 'fill-color': 'red',
                 'fill-opacity': 0.25,
