@@ -184,17 +184,19 @@
             type: 'vector',
             // scheme: 'xyz',  // required for proper display of vector tiles
             // `countries:opengeo:countries` are the workspace (countries) and layer name (opengeo:countries) as uploaded in geoserver
-            tiles: ['https://laurenoldham1202.github.io/countries-vector-tiles/countries/{z}/{x}/{y}.pbf'],
+            tiles: [location.origin  + '/sbviz-map/tiles/{z}/{x}/{y}.pbf'],
             // minZoom: 0,
             maxZoom: 15,
         });
+
+        console.log(location.origin  + '/sbviz-map/tiles/{z}/{x}/{y}.pbf');
         console.log(map.getSource('bknsti2'));
 
         map.addLayer({
             id: 'bknsti2',
             type: 'fill',
             source: 'bknsti2',
-            'source-layer': 'countries',  // `title` from geoserver
+            'source-layer': 'ameavo-ra',  // `title` from geoserver
             paint: {
                 'fill-color': 'red',
                 'fill-opacity': 0.25,
@@ -212,33 +214,33 @@
         // TODO Check in with Tom about google maps API
         // TODO Ask about other data vis packages currently in use - or do I need to figure that out?
 
-
-        // TODO see if www/vectortiles is needed
-        map.addSource('bknsti3', {
-            type: 'vector',
-            // scheme: 'tms',  // required for proper display of vector tiles
-            // `countries:opengeo:countries` are the workspace (countries) and layer name (opengeo:countries) as uploaded in geoserver
-            // TODO create Git tutorials for serving remotely with github pages, serving PBFs from local directory, tileServerGl, mapTiler?
-            tiles: ['https://laurenoldham1202.github.io/countries-vector-tiles/graticules/{z}/{x}/{y}.pbf'],
-            // minZoom: 0,
-            maxZoom: 15,
-        });
-        console.log(map.getSource('bknsti3'));
-
-        map.addLayer({
-            id: 'bknsti3',
-            type: 'line',
-            source: 'bknsti3',
-            'source-layer': 'graticules',  // `title` from geoserver
-            paint: {
-                'line-color': 'blue',
-            }
-        });
-        console.log(map.getLayer('bknsti2'));
-
-        map.on('click', 'bknsti2', (e) => {
-            console.log(e.features[0].properties);
-        });
+        //
+        // // TODO see if www/vectortiles is needed
+        // map.addSource('bknsti3', {
+        //     type: 'vector',
+        //     // scheme: 'tms',  // required for proper display of vector tiles
+        //     // `countries:opengeo:countries` are the workspace (countries) and layer name (opengeo:countries) as uploaded in geoserver
+        //     // TODO create Git tutorials for serving remotely with github pages, serving PBFs from local directory, tileServerGl, mapTiler?
+        //     tiles: ['https://laurenoldham1202.github.io/countries-vector-tiles/graticules/{z}/{x}/{y}.pbf'],
+        //     // minZoom: 0,
+        //     maxZoom: 15,
+        // });
+        // console.log(map.getSource('bknsti3'));
+        //
+        // map.addLayer({
+        //     id: 'bknsti3',
+        //     type: 'line',
+        //     source: 'bknsti3',
+        //     'source-layer': 'graticules',  // `title` from geoserver
+        //     paint: {
+        //         'line-color': 'blue',
+        //     }
+        // });
+        // console.log(map.getLayer('bknsti2'));
+        //
+        // map.on('click', 'bknsti2', (e) => {
+        //     console.log(e.features[0].properties);
+        // });
 
 
         // // TODO see if www/vectortiles is needed
