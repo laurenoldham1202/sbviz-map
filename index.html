@@ -218,7 +218,19 @@
         addDrawControl();
         onDraw();
 
+        // TODO add warning for large polygons at highest zoom levels - turn off autocalculation and prompt to recalculate?
         map.on('zoom', () => {
+            const zoom = map.getZoom();
+            const thresholds = [3, 5, 7];
+
+            thresholds.forEach(threshold => {
+                if ((zoom >= threshold) && (zoom <= threshold + 0.05) && drawnPolygon) {
+                    console.log('update!');
+                    selectTiles();
+                }
+            });
+
+
             // TODO Try to make zoom selection more seamless -
             // Tile layer changes and then selects on zoom, so there is a brief blip where the selected layer isn't visible
             if (drawnPolygon) {
@@ -336,12 +348,18 @@
         $('.mapbox-gl-draw_trash').on('click', () => {
             draw.deleteAll();
             $('#info').text('');
-
+            drawnPolygon = undefined;
         });
     }
 
     function onDraw() {
         map.on('draw.create', (e) => {
+            drawnPolygon = e.features[0];
+            selectTiles();
+        });
+
+        map.on('draw.update', (e) => {
+            console.log(e.features[0]);
             drawnPolygon = e.features[0];
             selectTiles();
         });
@@ -352,6 +370,7 @@
         const layer = `${bird}_${time}_${week}`;
 
         setTimeout(() => {
+            // TODO Fix to draw polygons instead of bbox
             const features = map.queryRenderedFeatures(bboxToPixel(drawnPolygon), { layers: [layer] });
             const props = features.map(feature => feature.properties);
             const unique = props.filter((elem, index) => props.findIndex(obj => obj.id === elem.id) === index);
