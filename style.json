@@ -1,0 +1,61 @@
+{
+    "version": 8,
+    "name": "bknsti-ra-week11",
+    "metadata": {
+        "mapbox:autocomposite": true,
+        "mapbox:type": "template",
+        "mapbox:sdk-support": {
+            "android": "9.3.0",
+            "ios": "5.10.0",
+            "js": "2.0.0"
+        },
+        "mapbox:groups": {},
+        "mapbox:uiParadigm": "layers"
+    },
+    "center": [-64.84054792490329, -6.522771374832573],
+    "zoom": 1.9512247213528913,
+    "bearing": 0,
+    "pitch": 0,
+    "sources": {
+        "composite": {
+            "url": "mapbox://laurenoldham1202.6h7usi8o",
+            "type": "vector"
+        }
+    },
+    "sprite": "mapbox://sprites/laurenoldham1202/ckligmy691iv617qffwfx2rm0/ck2u8j60r58fu0sgyxrigm3cu",
+    "glyphs": "mapbox://fonts/laurenoldham1202/{fontstack}/{range}.pbf",
+    "layers": [
+        {
+            "id": "bknsti-ra",
+            "type": "fill",
+            "source": "composite",
+            "source-layer": "bknsti_ra",
+            "layout": {},
+            "paint": {
+                "fill-color": [
+                    "interpolate",
+                    ["linear"],
+                    ["get", "relative_abundance"],
+                    0,
+                    "hsla(0, 0%, 100%, 0.25)",
+                    1,
+                    "hsl(48, 94%, 51%)",
+                    2.5,
+                    "hsl(31, 87%, 51%)",
+                    5,
+                    "hsl(326, 81%, 41%)",
+                    10,
+                    "hsl(285, 81%, 37%)",
+                    18,
+                    "hsl(254, 77%, 36%)"
+                ]
+            }
+        }
+    ],
+    "created": "2021-02-23T20:27:27.116Z",
+    "modified": "2021-02-23T20:44:34.335Z",
+    "id": "ckligmy691iv617qffwfx2rm0",
+    "owner": "laurenoldham1202",
+    "visibility": "private",
+    "draft": false
+}
