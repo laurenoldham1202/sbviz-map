@@ -1,24 +1,10 @@
 {
     "version": 8,
     "name": "bknsti-ra-week11",
-    "metadata": {
-        "mapbox:autocomposite": true,
-        "mapbox:type": "template",
-        "mapbox:sdk-support": {
-            "android": "9.3.0",
-            "ios": "5.10.0",
-            "js": "2.0.0"
-        },
-        "mapbox:groups": {},
-        "mapbox:uiParadigm": "layers"
-    },
-    "center": [-64.84054792490329, -6.522771374832573],
-    "zoom": 1.9512247213528913,
-    "bearing": 0,
-    "pitch": 0,
+    "metadata": {},
     "sources": {
         "composite": {
-            "url": "mapbox://laurenoldham1202.6h7usi8o",
+            "url": "http://localhost:8080/data/bknsti_rab_11/{z}/{x}/{y}.pbf",
             "type": "vector"
         }
     },
@@ -56,6 +42,4 @@
     "modified": "2021-02-23T20:44:34.335Z",
     "id": "ckligmy691iv617qffwfx2rm0",
     "owner": "laurenoldham1202",
-    "visibility": "private",
-    "draft": false
 }
