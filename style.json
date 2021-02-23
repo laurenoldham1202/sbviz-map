@@ -4,7 +4,7 @@
     "metadata": {},
     "sources": {
         "composite": {
-            "url": "http://localhost:8080/data/bknsti_rab_11/{z}/{x}/{y}.pbf",
+            "url": "http://localhost:8080/data/bknsti_rab_11.json",
             "type": "vector"
         }
     },
@@ -40,6 +40,6 @@
     ],
     "created": "2021-02-23T20:27:27.116Z",
     "modified": "2021-02-23T20:44:34.335Z",
-    "id": "ckligmy691iv617qffwfx2rm0",
+    "id": "test",
     "owner": "laurenoldham1202"
 }
