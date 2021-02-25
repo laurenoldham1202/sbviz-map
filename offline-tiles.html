@@ -34,8 +34,6 @@
       top: 1rem;
       left: 1rem;
       padding: 1rem;
-      /*display: flex;*/
-      /*flex-direction: column;*/
     }
 
   </style>
@@ -45,6 +43,9 @@
 <div id='map'></div>
 <div class="info">
   <ol>
+    <li>Vector tiles exist in project's repository</li>
+    <li>Map code calls URL as <code>location.origin + location.pathname + '/tiles/{z}/{x}/{y}.pbf'</code> and only works when deployed</li>
+    <li>See tiles at <a href="https://github.com/laurenoldham1202/sbviz-map/tree/weekly/tiles">https://github.com/laurenoldham1202/sbviz-map/tree/weekly/tiles</a></li>
   </ol>
 </div>
 
@@ -61,12 +62,10 @@
   map.on('load', () => {
 
     const loc = location.origin + '/sbviz-map/tiles/{z}/{x}/{y}.pbf';
-    console.log('origin:', location.origin);
-    console.log('path:', location.pathname);
-    console.log(loc);
 
     map.addSource('offline-source', {
       type: 'vector',
+      // if serving index.html directly instead of a secondary HTML file, use `location.origin + location.pathname + '/tiles/{z}/{x}/{y}.pbf'`
       tiles: [loc],
     });
 
@@ -76,7 +75,7 @@
       source: 'offline-source',
       'source-layer': 'ameavo_ra',  // `title` from geoserver
       paint: {
-        'fill-color': 'orange',
+        'fill-color': 'green',
         'fill-opacity': 0.25,
       }
     });
