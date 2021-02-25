@@ -61,6 +61,7 @@
   map.on('load', () => {
 
     const loc = location.origin + location.pathname + 'tiles/{z}/{x}/{y}.pbf';
+    console.log(loc);
 
     map.addSource('offline-source', {
       type: 'vector',
