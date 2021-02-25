@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8' />
+  <title></title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+  <!-- JS -->
+  <!-- Mapbox, mapbox-draw, turf -->
+  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.js'></script>
+  <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.9/mapbox-gl-draw.js'></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.css' rel='stylesheet' />
+  <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.9/mapbox-gl-draw.css' type='text/css'/>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+
+    .info {
+      z-index: 500;
+      background: whitesmoke;
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      padding: 1rem;
+      /*display: flex;*/
+      /*flex-direction: column;*/
+    }
+
+  </style>
+</head>
+<body>
+
+<div id='map'></div>
+<div class="info">
+  <ol>
+  </ol>
+</div>
+
+<script>
+  mapboxgl.accessToken = 'pk.eyJ1IjoibGF1cmVub2xkaGFtMTIwMiIsImEiOiJjaW55dm52N2gxODJrdWtseWZ5czAyZmp5In0.YkEUt6GvIDujjudu187eyA';
+
+  map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/streets-v9',
+    center: [-75, 10], // starting position [lng, lat]
+    zoom: 1, // starting zoom
+  });
+
+  map.on('load', () => {
+
+    const loc = location.origin + location.pathname + 'tiles/{z}/{x}/{y}.pbf';
+
+    map.addSource('offline-source', {
+      type: 'vector',
+      tiles: [loc],
+    });
+
+    map.addLayer({
+      id: 'offline-layer',
+      type: 'fill',
+      source: 'offline-source',
+      'source-layer': 'ameavo_ra',  // `title` from geoserver
+      paint: {
+        'fill-color': 'orange',
+        'fill-opacity': 0.25,
+      }
+    });
+  });
+
+</script>
+
+</body>
+</html>
