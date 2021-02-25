@@ -61,6 +61,8 @@
   map.on('load', () => {
 
     const loc = location.origin + location.pathname + 'tiles/{z}/{x}/{y}.pbf';
+    console.log('origin:', location.origin);
+    console.log('path:', location.pathname);
     console.log(loc);
 
     map.addSource('offline-source', {
