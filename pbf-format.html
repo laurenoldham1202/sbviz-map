@@ -27,11 +27,30 @@
       width: 100%;
     }
 
+    .info {
+      z-index: 500;
+      background: whitesmoke;
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      padding: 1rem;
+      /*display: flex;*/
+      /*flex-direction: column;*/
+    }
+
   </style>
 </head>
 <body>
 
 <div id='map'></div>
+<div class="info">
+  <ol>
+    <li>Vector tiles are output to a directory as nested PBF files (similar to raster tile structure) in Tippecanoe</li>
+    <li>Directory of PBF files is pushed to GitHub repo (<a href="https://github.com/laurenoldham1202/countries-vector-tiles" target="_blank">https://github.com/laurenoldham1202/countries-vector-tiles</a>)</li>
+    <li>GitHubPages is enabled on repo to serve vector tiles (<a href="https://github.com/laurenoldham1202/countries-vector-tiles" target="_blank">https://laurenoldham1202.github.io/countries-vector-tiles</a>)</li>
+    <li>Map code hits GHPages URL to display vector tiles on map</li>
+  </ol>
+</div>
 
 <script>
   mapboxgl.accessToken = 'pk.eyJ1IjoibGF1cmVub2xkaGFtMTIwMiIsImEiOiJjaW55dm52N2gxODJrdWtseWZ5czAyZmp5In0.YkEUt6GvIDujjudu187eyA';
