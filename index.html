@@ -159,10 +159,10 @@
         style: 'mapbox://styles/mapbox/dark-v9',
         center: [-75, 10], // starting position [lng, lat]
         zoom: 1, // starting zoom
+        maxZoom: 9,
     });
 
     map.on('load', () => {
-
         // map.addSource('bknsti2', {
         //     type: 'vector',
         //     // scheme: 'tms',  // required for proper display of vector tiles
