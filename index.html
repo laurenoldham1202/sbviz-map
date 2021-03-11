@@ -163,11 +163,14 @@
     });
 
     map.on('load', () => {
+        
+        
+        // // TEST FOR SINGLE WEEKLY TILESET AS MBTILES
         // map.addSource('bknsti2', {
         //     type: 'vector',
         //     // scheme: 'tms',  // required for proper display of vector tiles
         //     // `countries:opengeo:countries` are the workspace (countries) and layer name (opengeo:countries) as uploaded in geoserver
-        //     tiles: ['http://localhost:8080/data/ameavo_ra_3km/{z}/{x}/{y}.pbf'],
+        //     tiles: ['http://localhost:8080/data/bknsti_week11/{z}/{x}/{y}.pbf'],
         //     // minZoom: 0,
         //     maxZoom: 15,
         // });
@@ -177,17 +180,56 @@
         //     id: 'bknsti2',
         //     type: 'fill',
         //     source: 'bknsti2',
-        //     'source-layer': 'ameavo_ra',  // `title` from geoserver
+        //     'source-layer': 'bknsti_week11',  // `title` from geoserver
         //     paint: {
         //         'fill-color': 'red',
         //         'fill-opacity': 0.25,
         //     }
         // });
+        
+        
+        
+        
+        
+        
+        map.addSource('single-week', {
+            type: 'vector',
+            // scheme: 'tms',  // required for proper display of vector tiles
+            // `countries:opengeo:countries` are the workspace (countries) and layer name (opengeo:countries) as uploaded in geoserver
+            tiles: ['http://127.0.0.1:8081/{z}/{x}/{y}.pbf'],
+            // minZoom: 0,
+            maxZoom: 15,
+        });
+
+        map.addLayer({
+            id: 'single-week',
+            type: 'fill',
+            source: 'single-week',
+            'source-layer': 'ameavo_0329',  // `title` from geoserver
+            paint: {
+                // 'fill-color': 'yellow',
+                'fill-color': ['interpolate', ['linear'], ['get', 'abd_median'],
+                    0, 'rgba(255, 255, 255, 0.25)',
+                    0.00001, '#fcfdbf',
+                    0.5, '#fc8761',
+                    1.5, '#b6367a',
+                    3, '#51127c',
+                    5, '#00004c',
+                    120, '#000'
+                ],
+                'fill-opacity': 0.75,
+                'fill-outline-color': 'transparent'
+            }
+        });
+        
+        
+        
+        
         // console.log(map.getLayer('bknsti2'));
         //
-        // map.on('click', 'bknsti2', (e) => {
-        //     console.log(e.features[0].properties);
-        // });
+        map.on('click', 'single-week', (e) => {
+            console.log(e.features[0].properties);
+        });
 
 
         // TODO Document issues with trying to merge all 52 weeks into same dataset (
@@ -242,6 +284,7 @@
         // TODO add warning for large polygons at highest zoom levels - turn off autocalculation and prompt to recalculate?
         map.on('zoom', () => {
             const zoom = map.getZoom();
+            // console.log(zoom);
             const thresholds = [3, 5, 7];
 
             thresholds.forEach(threshold => {
