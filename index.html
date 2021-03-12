@@ -165,63 +165,67 @@
     map.on('load', () => {
         
         
-        // // TEST FOR SINGLE WEEKLY TILESET AS MBTILES
-        // map.addSource('bknsti2', {
-        //     type: 'vector',
-        //     // scheme: 'tms',  // required for proper display of vector tiles
-        //     // `countries:opengeo:countries` are the workspace (countries) and layer name (opengeo:countries) as uploaded in geoserver
-        //     tiles: ['http://localhost:8080/data/bknsti_week11/{z}/{x}/{y}.pbf'],
-        //     // minZoom: 0,
-        //     maxZoom: 15,
-        // });
-        // console.log(map.getSource('bknsti'));
-        //
-        // map.addLayer({
-        //     id: 'bknsti2',
-        //     type: 'fill',
-        //     source: 'bknsti2',
-        //     'source-layer': 'bknsti_week11',  // `title` from geoserver
-        //     paint: {
-        //         'fill-color': 'red',
-        //         'fill-opacity': 0.25,
-        //     }
-        // });
-        
-        
-        
-        
-        
-        
-        map.addSource('single-week', {
+        // TEST FOR SINGLE WEEKLY TILESET AS MBTILES
+        map.addSource('bknsti2', {
             type: 'vector',
             // scheme: 'tms',  // required for proper display of vector tiles
             // `countries:opengeo:countries` are the workspace (countries) and layer name (opengeo:countries) as uploaded in geoserver
-            tiles: ['http://127.0.0.1:8081/{z}/{x}/{y}.pbf'],
+            tiles: ['http://localhost:8080/data/bknsti_week11/{z}/{x}/{y}.pbf'],
             // minZoom: 0,
             maxZoom: 15,
         });
+        // console.log(map.getSource('bknsti2'));
 
         map.addLayer({
-            id: 'single-week',
+            id: 'bknsti2',
             type: 'fill',
-            source: 'single-week',
-            'source-layer': 'ameavo_0329',  // `title` from geoserver
+            source: 'bknsti2',
+            'source-layer': 'bknsti_week11',  // `title` from geoserver
             paint: {
-                // 'fill-color': 'yellow',
-                'fill-color': ['interpolate', ['linear'], ['get', 'abd_median'],
-                    0, 'rgba(255, 255, 255, 0.25)',
-                    0.00001, '#fcfdbf',
-                    0.5, '#fc8761',
-                    1.5, '#b6367a',
-                    3, '#51127c',
-                    5, '#00004c',
-                    120, '#000'
-                ],
-                'fill-opacity': 0.75,
-                'fill-outline-color': 'transparent'
+                'fill-color': 'red',
+                'fill-opacity': 0.25,
             }
         });
-        
+
+        // console.log(map.getLayer('bknsti2'));
+
+
+
+
+
+
+
+
+        // map.addSource('single-week', {
+        //     type: 'vector',
+        //     // scheme: 'tms',  // required for proper display of vector tiles
+        //     // `countries:opengeo:countries` are the workspace (countries) and layer name (opengeo:countries) as uploaded in geoserver
+        //     tiles: ['http://127.0.0.1:8081/{z}/{x}/{y}.pbf'],
+        //     // minZoom: 0,
+        //     maxZoom: 15,
+        // });
+        //
+        // map.addLayer({
+        //     id: 'single-week',
+        //     type: 'fill',
+        //     source: 'single-week',
+        //     'source-layer': 'ameavo_0329',  // `title` from geoserver
+        //     paint: {
+        //         // 'fill-color': 'yellow',
+        //         'fill-color': ['interpolate', ['linear'], ['get', 'abd_median'],
+        //             0, 'rgba(255, 255, 255, 0.25)',
+        //             0.00001, '#fcfdbf',
+        //             0.5, '#fc8761',
+        //             1.5, '#b6367a',
+        //             3, '#51127c',
+        //             5, '#00004c',
+        //             120, '#000'
+        //         ],
+        //         'fill-opacity': 0.75,
+        //         'fill-outline-color': 'transparent'
+        //     }
+        // });
+        //
         
         
         
@@ -405,9 +409,78 @@
     }
 
     function onDraw() {
+
+        var poly1 = turf.polygon([[
+            [-122.801742, 45.48565],
+            [-122.801742, 45.60491],
+            [-122.584762, 45.60491],
+            [-122.584762, 45.48565],
+            [-122.801742, 45.48565]
+        ]]);
+
+        var poly2 = turf.polygon([[
+            [-122.520217, 45.535693],
+            [-122.64038, 45.553967],
+            [-122.720031, 45.526554],
+            [-122.669906, 45.507309],
+            [-122.723464, 45.446643],
+            [-122.532577, 45.408574],
+            [-122.487258, 45.477466],
+            [-122.520217, 45.535693]
+        ]]);
+
+        var intersection = turf.intersect(poly1, poly2);
+        // console.log(intersection);
+
         map.on('draw.create', (e) => {
             drawnPolygon = e.features[0];
-            selectTiles();
+            // console.log(drawnPolygon.geometry.coordinates);
+            // console.log(turf.polygon(drawnPolygon.geometry.coordinates));
+
+            const tmp = [[
+                [-122.801742, 45.48565],
+                [-122.801742, 45.60491],
+                [-122.584762, 45.60491],
+                [-122.584762, 45.48565],
+                [-122.801742, 45.48565]
+            ]];
+
+            // console.log(tmp);
+
+            const ints = [];
+            const selected = {
+                ids: [],
+                pops: [],
+                ras: []
+            };
+
+            setTimeout(() => {
+
+                const layer = map.queryRenderedFeatures({layers: ['bknsti2']});
+                // console.log(layer);
+
+                layer.forEach(f => {
+                    // console.log(f);
+                    // // TODO need to preserve f properties
+                    const poly = turf.polygon(f.geometry.coordinates);
+                    poly.properties = f.properties;
+                    const t = turf.intersect(turf.polygon(drawnPolygon.geometry.coordinates), poly);
+                    if (t) {
+                        // console.log(poly);
+                        selected.ids.push(poly.properties.id);
+                        selected.pops.push(poly.properties.percent_population);
+                        selected.ras.push(poly.properties.relative_abundance);
+                        // TODO push properties to an array and set a filter for those ids on the map
+
+                        // console.log(t);
+                    }
+                });
+                // f.geometry.coordinates is an array for each box coords
+                console.log(selected);
+            }, 200);
+
+            // console.log(ints);
+            // selectTiles();
         });
 
         map.on('draw.update', (e) => {
