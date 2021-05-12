@@ -64,36 +64,59 @@
 
   map.on('load', () => {
 
-    map.addSource('countries-source', {
+    // map.addSource('countries-source', {
+    //   type: 'vector',
+    //   tiles: ['https://laurenoldham1202.github.io/countries-vector-tiles/countries/{z}/{x}/{y}.pbf'],
+    // });
+    //
+    // map.addLayer({
+    //   id: 'countries-layer',
+    //   type: 'fill',
+    //   source: 'countries-source',
+    //   'source-layer': 'countries',
+    //   paint: {
+    //     'fill-color': 'red',
+    //     'fill-opacity': 0.25,
+    //   }
+    // });
+    //
+    // map.addSource('graticules-source', {
+    //   type: 'vector',
+    //   tiles: ['https://laurenoldham1202.github.io/countries-vector-tiles/graticules/{z}/{x}/{y}.pbf'],
+    // });
+    //
+    // map.addLayer({
+    //   id: 'graticules-layer',
+    //   type: 'line',
+    //   source: 'graticules-source',
+    //   'source-layer': 'graticules',
+    //   paint: {
+    //     'line-color': 'blue',
+    //   }
+    // });
+
+
+    map.on('zoom', () => {
+      console.log(map.getZoom())
+    });
+
+
+    map.addSource('test', {
       type: 'vector',
-      tiles: ['https://laurenoldham1202.github.io/countries-vector-tiles/countries/{z}/{x}/{y}.pbf'],
+      tiles: ['http://127.0.0.1:8084/wetland/{z}/{x}/{y}.pbf'],
     });
 
     map.addLayer({
-      id: 'countries-layer',
+      id: 'test',
       type: 'fill',
-      source: 'countries-source',
-      'source-layer': 'countries',
+      source: 'test',
+      'source-layer': 'trends',
       paint: {
-        'fill-color': 'red',
-        'fill-opacity': 0.25,
+        'fill-color': 'purple',
       }
     });
 
-    map.addSource('graticules-source', {
-      type: 'vector',
-      tiles: ['https://laurenoldham1202.github.io/countries-vector-tiles/graticules/{z}/{x}/{y}.pbf'],
-    });
 
-    map.addLayer({
-      id: 'graticules-layer',
-      type: 'line',
-      source: 'graticules-source',
-      'source-layer': 'graticules',
-      paint: {
-        'line-color': 'blue',
-      }
-    });
   });
 
 </script>

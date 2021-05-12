@@ -381,12 +381,30 @@
         setTimeout(() => {
             // TODO Fix to draw polygons instead of bbox
             const features = map.queryRenderedFeatures(bboxToPixel(drawnPolygon), { layers: [layer] });
+            // console.log(bboxToPixel(drawnPolygon));
+
+            // TODO Adjust unique to pull in geom and not just props
+            const geometry = {type: 'Polygon', coordinates: []};
+
+            features.forEach(feat => {
+                // console.log(feat.geometry);
+                geometry.coordinates.push(feat.geometry.coordinates[0]);
+            });
+            // console.log(drawnPolygon);
+            // console.log(geometry);
+
+            const int = turf.intersect(drawnPolygon.geometry, geometry);
+            console.log(int);
+            console.log(JSON.stringify(int));
+
+
+            // console.log(features);
             const props = features.map(feature => feature.properties);
             const unique = props.filter((elem, index) => props.findIndex(obj => obj.id === elem.id) === index);
-
+            // console.log(unique);
             if (unique.length) {
                 const mean = calculateMean(unique.map(val => val[time === 'pop' ? 'percent_of_population' : 'relative_abundance']));
-                console.log(mean);
+                // console.log(mean);
                 $('#info').text('Mean for selected area: ' + mean.toFixed(6));
             } else {
                 // TODO Return error
