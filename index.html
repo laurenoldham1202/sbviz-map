@@ -92,9 +92,9 @@
 <script>
     mapboxgl.accessToken = 'pk.eyJ1IjoibGF1cmVub2xkaGFtMTIwMiIsImEiOiJjaW55dm52N2gxODJrdWtseWZ5czAyZmp5In0.YkEUt6GvIDujjudu187eyA';
 
-    let week = '';
-    let bird = '';
-    let time = '';
+    let week = '03-15';
+    let bird = 'ameavo';
+    let time = 'ra';
 
     let drawnPolygon = undefined;
 
@@ -232,12 +232,15 @@
             });
 
             map.on('click', key, (e) => {
-                // console.log(e.features[0].properties);
+                console.log(e.features[0].properties);
             });
         });
 
         addDrawControl();
         onDraw();
+
+        updateTileLayer();
+
 
         // TODO add warning for large polygons at highest zoom levels - turn off autocalculation and prompt to recalculate?
         map.on('zoom', () => {
@@ -375,27 +378,85 @@
     }
 
     function selectTiles() {
+
+
+        // setTimeout(() => {
+        //
+        //     const layer = map.queryRenderedFeatures({layers: ['ameavo_ra_11']});
+        //     console.log(layer);
+        //
+        //     layer.forEach(f => {
+        //         // console.log(f);
+        //         // // TODO need to preserve f properties
+        //         const poly = turf.polygon(f.geometry.coordinates);
+        //         // console.log(poly);
+        //         poly.properties = f.properties;
+        //         const t = turf.intersect(turf.polygon(drawnPolygon.geometry.coordinates), poly);
+        //         if (t) {
+        //             // console.log(poly);
+        //             selected.ids.push(poly.properties.id);
+        //             selected.pops.push(poly.properties.percent_population);
+        //             selected.ras.push(poly.properties.relative_abundance);
+        //             // TODO push properties to an array and set a filter for those ids on the map
+        //             // TODO Test github.io deployment of subset of PBF tiles to see if missing tile 404s are returned
+        //             // TODO Also test a http-server on locally generated PBFs in GM (will need to reformat column and output names)
+        //
+        //             // console.log(t);
+        //         }
+        //     });
+        //     // f.geometry.coordinates is an array for each box coords
+        //     console.log(selected);
+        // }, 200);
+
+
         // TODO Add condition for when no layer is on the map
         const layer = `${bird}_${time}_${week}`;
 
         setTimeout(() => {
             // TODO Fix to draw polygons instead of bbox
             const features = map.queryRenderedFeatures(bboxToPixel(drawnPolygon), { layers: [layer] });
-            // console.log(bboxToPixel(drawnPolygon));
+            const test = map.queryRenderedFeatures({ layers: [layer] });
+            // console.log(features);
+            // console.log(test);
 
             // TODO Adjust unique to pull in geom and not just props
             const geometry = {type: 'Polygon', coordinates: []};
 
+            let intersection = [];
             features.forEach(feat => {
                 // console.log(feat.geometry);
-                geometry.coordinates.push(feat.geometry.coordinates[0]);
-            });
-            // console.log(drawnPolygon);
-            // console.log(geometry);
+                // geometry.coordinates.push(feat.geometry.coordinates[0]);
+                const poly = turf.polygon(feat.geometry.coordinates);
+                poly.properties = feat.properties;
+                // console.log('BEFORE', poly.properties.id);
+                // const int = turf.intersect(turf.polygon(drawnPolygon.geometry.coordinates), poly);
+                const int = turf.intersect(poly, turf.polygon(drawnPolygon.geometry.coordinates));
+                if (int) {
+                    // console.log('INTERSECTED!!:', poly.properties.id);
+                    intersection.push(poly);
+                    // geometry.coordinates.push(int.geometry.coordinates[0]);
 
-            const int = turf.intersect(drawnPolygon.geometry, geometry);
-            console.log(int);
-            console.log(JSON.stringify(int));
+                }
+            });
+
+            console.log(intersection);
+
+            // console.log(drawnPolygon);
+            // console.log(JSON.stringify(turf.polygon(drawnPolygon.geometry.coordinates)));
+            // console.log(geometry);
+            // console.log(JSON.stringify(turf.polygon(geometry.coordinates)));
+            //
+            // const drawnpoly = turf.polygon(drawnPolygon.geometry.coordinates);
+            // const polys = turf.polygon(geometry.coordinates);
+            // console.log(JSON.stringify(drawnpoly));
+            // console.log(JSON.stringify(polys));
+            //
+            //
+            // const int = turf.intersect(polys, drawnpoly);
+            // const int2 = turf.intersect(drawnpoly, polys);
+            // // console.log(int);
+            // console.log(JSON.stringify(int));
+            // console.log(JSON.stringify(int2));
 
 
             // console.log(features);
