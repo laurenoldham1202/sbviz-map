@@ -163,8 +163,8 @@
     });
 
     map.on('load', () => {
-        
-        
+
+
         // TEST FOR SINGLE WEEKLY TILESET AS MBTILES
         map.addSource('bknsti2', {
             type: 'vector',
@@ -226,9 +226,9 @@
         //     }
         // });
         //
-        
-        
-        
+
+
+
         // console.log(map.getLayer('bknsti2'));
         //
         map.on('click', 'single-week', (e) => {
@@ -456,13 +456,14 @@
 
             setTimeout(() => {
 
-                const layer = map.queryRenderedFeatures({layers: ['bknsti2']});
-                // console.log(layer);
+                const layer = map.queryRenderedFeatures({layers: ['ameavo_ra_11']});
+                console.log(layer);
 
                 layer.forEach(f => {
                     // console.log(f);
                     // // TODO need to preserve f properties
                     const poly = turf.polygon(f.geometry.coordinates);
+                    // console.log(poly);
                     poly.properties = f.properties;
                     const t = turf.intersect(turf.polygon(drawnPolygon.geometry.coordinates), poly);
                     if (t) {
