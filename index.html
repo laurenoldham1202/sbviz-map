@@ -232,7 +232,7 @@
             });
 
             map.on('click', key, (e) => {
-                console.log(e.features[0].properties);
+                // console.log(e.features[0].properties);
             });
         });
 
@@ -413,15 +413,14 @@
         const layer = `${bird}_${time}_${week}`;
 
         setTimeout(() => {
-            // TODO Fix to draw polygons instead of bbox
             const features = map.queryRenderedFeatures(bboxToPixel(drawnPolygon), { layers: [layer] });
-            const test = map.queryRenderedFeatures({ layers: [layer] });
-            // console.log(features);
-            // console.log(test);
+            // const test = map.queryRenderedFeatures({ layers: [layer] });
+            // // console.log(features);
+            // // console.log(test);
+            //
+            // const geometry = {type: 'Polygon', coordinates: []};
 
-            // TODO Adjust unique to pull in geom and not just props
-            const geometry = {type: 'Polygon', coordinates: []};
-
+            // TODO NEED TO ADD CONDITION FOR PARTIAL POLYGONS
             let intersection = [];
             features.forEach(feat => {
                 // console.log(feat.geometry);
@@ -460,12 +459,12 @@
 
 
             // console.log(features);
-            const props = features.map(feature => feature.properties);
+            const props = intersection.map(feature => feature.properties);
             const unique = props.filter((elem, index) => props.findIndex(obj => obj.id === elem.id) === index);
             // console.log(unique);
             if (unique.length) {
                 const mean = calculateMean(unique.map(val => val[time === 'pop' ? 'percent_of_population' : 'relative_abundance']));
-                // console.log(mean);
+                console.log(mean);
                 $('#info').text('Mean for selected area: ' + mean.toFixed(6));
             } else {
                 // TODO Return error
